@@ -11,6 +11,7 @@ import threadRoutes from './routes/threadRoutes.js';
 import dmRoutes from './routes/dmRoutes.js';
 import voiceRoutes from './routes/voiceRoutes.js';
 import githubRoutes from './routes/githubRoutes.js';
+import kanbanRoutes from './routes/kanbanRoutes.js';
 
 // Register all Mongoose models on startup
 import './models/User.js';
@@ -53,6 +54,7 @@ app.use('/api/messages/:messageId/threads', threadRoutes);
 app.use('/api/dm', dmRoutes);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/github', githubRoutes);
+app.use('/api/servers/:serverId/kanban', kanbanRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
