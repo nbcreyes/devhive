@@ -10,6 +10,7 @@ import messageRoutes from './routes/messageRoutes.js';
 import threadRoutes from './routes/threadRoutes.js';
 import dmRoutes from './routes/dmRoutes.js';
 import voiceRoutes from './routes/voiceRoutes.js';
+import githubRoutes from './routes/githubRoutes.js';
 
 // Register all Mongoose models on startup
 import './models/User.js';
@@ -51,6 +52,7 @@ app.use('/api/channels/:channelId/messages', messageRoutes);
 app.use('/api/messages/:messageId/threads', threadRoutes);
 app.use('/api/dm', dmRoutes);
 app.use('/api/voice', voiceRoutes);
+app.use('/api/github', githubRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
