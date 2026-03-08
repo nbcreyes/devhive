@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { createSession } from './config/session.js';
 
+import authRoutes from './routes/authRoutes.js';
+
 // Register all Mongoose models on startup
 import './models/User.js';
 import './models/Server.js';
@@ -37,6 +39,8 @@ app.get('/health', (req, res) => {
 app.get('/api', (req, res) => {
   res.json({ message: 'DevHive API v1' });
 });
+
+app.use('/api/auth', authRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
