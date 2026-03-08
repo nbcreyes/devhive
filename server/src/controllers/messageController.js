@@ -1,6 +1,7 @@
-import Message from '../models/Message.js';
-import Member from '../models/Member.js';
-import Channel from '../models/Channel.js';
+import Message from "../models/Message.js";
+import Member from "../models/Member.js";
+import Channel from "../models/Channel.js";
+import { parseCodeBlock } from "../utils/codeDetector.js";
 
 /**
  * GET /api/channels/:channelId/messages
@@ -14,7 +15,7 @@ export async function getMessages(req, res, next) {
 
     const channel = await Channel.findById(channelId);
     if (!channel) {
-      return res.status(404).json({ error: 'Channel not found' });
+      return res.status(404).json({ error: "Channel not found" });
     }
 
     const membership = await Member.findOne({
@@ -23,7 +24,9 @@ export async function getMessages(req, res, next) {
     });
 
     if (!membership) {
-      return res.status(403).json({ error: 'You are not a member of this server' });
+      return res
+        .status(403)
+        .json({ error: "You are not a member of this server" });
     }
 
     const query = { channel: channelId, isDeleted: false };
@@ -35,7 +38,7 @@ export async function getMessages(req, res, next) {
     const messages = await Message.find(query)
       .sort({ _id: -1 })
       .limit(Number(limit))
-      .populate('author', 'username displayName avatar');
+      .populate("author", "username displayName avatar");
 
     const hasMore = messages.length === Number(limit);
 
@@ -59,7 +62,7 @@ export async function deleteMessage(req, res, next) {
 
     const message = await Message.findById(messageId);
     if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
+      return res.status(404).json({ error: "Message not found" });
     }
 
     const membership = await Member.findOne({
@@ -68,19 +71,26 @@ export async function deleteMessage(req, res, next) {
     });
 
     if (!membership) {
-      return res.status(403).json({ error: 'You are not a member of this server' });
+      return res
+        .status(403)
+        .json({ error: "You are not a member of this server" });
     }
 
     const isAuthor = message.author.toString() === req.session.userId;
-    const isAdmin = membership.role === 'admin' || membership.role === 'owner';
+    const isAdmin = membership.role === "admin" || membership.role === "owner";
 
     if (!isAuthor && !isAdmin) {
-      return res.status(403).json({ error: 'You can only delete your own messages' });
+      return res
+        .status(403)
+        .json({ error: "You can only delete your own messages" });
     }
 
-    await Message.findByIdAndUpdate(messageId, { isDeleted: true, content: 'This message was deleted' });
+    await Message.findByIdAndUpdate(messageId, {
+      isDeleted: true,
+      content: "This message was deleted",
+    });
 
-    res.json({ message: 'Message deleted successfully' });
+    res.json({ message: "Message deleted successfully" });
   } catch (err) {
     next(err);
   }
@@ -97,18 +107,27 @@ export async function editMessage(req, res, next) {
 
     const message = await Message.findById(messageId);
     if (!message) {
-      return res.status(404).json({ error: 'Message not found' });
+      return res.status(404).json({ error: "Message not found" });
     }
 
     if (message.author.toString() !== req.session.userId) {
-      return res.status(403).json({ error: 'You can only edit your own messages' });
+      return res
+        .status(403)
+        .json({ error: "You can only edit your own messages" });
     }
+
+    const { isCode: detectedCode, language } = parseCodeBlock(content.trim());
 
     const updated = await Message.findByIdAndUpdate(
       messageId,
-      { content, isEdited: true },
-      { new: true }
-    ).populate('author', 'username displayName avatar');
+      {
+        content,
+        isEdited: true,
+        isCode: detectedCode,
+        codeLanguage: language || null,
+      },
+      { new: true },
+    ).populate("author", "username displayName avatar");
 
     res.json({ message: updated });
   } catch (err) {
