@@ -13,6 +13,7 @@ import voiceRoutes from './routes/voiceRoutes.js';
 import githubRoutes from './routes/githubRoutes.js';
 import kanbanRoutes from './routes/kanbanRoutes.js';
 import summaryRoutes from './routes/summaryRoutes.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
 // Register all Mongoose models on startup
 import './models/User.js';
@@ -57,6 +58,7 @@ app.use('/api/voice', voiceRoutes);
 app.use('/api/github', githubRoutes);
 app.use('/api/servers/:serverId/kanban', kanbanRoutes);
 app.use('/api/channels/:channelId', summaryRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });

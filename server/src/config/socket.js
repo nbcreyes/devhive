@@ -1,8 +1,8 @@
 import { Server } from "socket.io";
 import { registerMessageHandlers } from "../sockets/messageHandler.js";
 import { registerThreadHandlers } from "../sockets/threadHandler.js";
-import { registerDmHandlers } from '../sockets/dmHandler.js';
-import { registerEditorHandlers } from '../sockets/editorHandler.js';
+import { registerDmHandlers } from "../sockets/dmHandler.js";
+import { registerEditorHandlers } from "../sockets/editorHandler.js";
 
 /**
  * @type {import('socket.io').Server}
@@ -32,6 +32,10 @@ export function createSocketServer(httpServer) {
     }
 
     socket.data.userId = userId;
+
+    // Join the user's personal room for notifications and DMs
+    socket.join(`user:${userId}`);
+
     console.log(`[socket] connected: ${socket.id} user: ${userId}`);
 
     registerMessageHandlers(io, socket);

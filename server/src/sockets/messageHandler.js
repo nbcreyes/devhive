@@ -3,6 +3,10 @@ import Member from "../models/Member.js";
 import Channel from "../models/Channel.js";
 import User from "../models/User.js";
 import { parseCodeBlock } from "../utils/codeDetector.js";
+import {
+  createNotification,
+  extractMentions,
+} from "../services/notifications.js";
 
 /**
  * Registers Socket.io event handlers for real-time messaging.
@@ -84,6 +88,20 @@ export function registerMessageHandlers(io, socket) {
         "author",
         "username displayName avatar",
       );
+
+      // Extract mentions and create notifications
+      const mentionedUserIds = await extractMentions(content.trim(), User);
+      for (const mentionedUserId of mentionedUserIds) {
+        await createNotification({
+          recipient: mentionedUserId,
+          type: "mention",
+          sender: userId,
+          server: channel.server,
+          channel: channelId,
+          message: populated._id,
+          preview: content.trim().slice(0, 128),
+        });
+      }
 
       io.to(`channel:${channelId}`).emit("message:new", { message: populated });
     } catch (err) {
