@@ -6,6 +6,7 @@ import { createSession } from './config/session.js';
 
 import authRoutes from './routes/authRoutes.js';
 import serverRoutes from './routes/serverRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
 
 // Register all Mongoose models on startup
 import './models/User.js';
@@ -43,6 +44,7 @@ app.get('/api', (req, res) => {
 
 app.use('/api/auth', authRoutes);
 app.use('/api/servers', serverRoutes);
+app.use('/api/channels/:channelId/messages', messageRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });

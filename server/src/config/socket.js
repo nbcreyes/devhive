@@ -1,4 +1,5 @@
 import { Server } from 'socket.io';
+import { registerMessageHandlers } from '../sockets/messageHandler.js';
 
 /**
  * @type {import('socket.io').Server}
@@ -7,6 +8,7 @@ let io;
 
 /**
  * Initializes Socket.io on the HTTP server.
+ * Attaches the userId from the session to the socket on connection.
  * @param {import('http').Server} httpServer
  * @returns {import('socket.io').Server}
  */
@@ -19,7 +21,17 @@ export function createSocketServer(httpServer) {
   });
 
   io.on('connection', (socket) => {
-    console.log(`[socket] connected: ${socket.id}`);
+    const userId = socket.handshake.auth.userId;
+
+    if (!userId) {
+      socket.disconnect();
+      return;
+    }
+
+    socket.data.userId = userId;
+    console.log(`[socket] connected: ${socket.id} user: ${userId}`);
+
+    registerMessageHandlers(io, socket);
 
     socket.on('disconnect', () => {
       console.log(`[socket] disconnected: ${socket.id}`);
