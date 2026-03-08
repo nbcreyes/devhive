@@ -3,6 +3,18 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 
+// Register all Mongoose models on startup
+import './models/User.js';
+import './models/Server.js';
+import './models/Channel.js';
+import './models/Message.js';
+import './models/Thread.js';
+import './models/DirectMessage.js';
+import './models/Member.js';
+import './models/Role.js';
+import './models/Notification.js';
+import './models/Kanban.js';
+
 const app = express();
 
 app.use(helmet());
