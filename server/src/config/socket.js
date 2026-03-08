@@ -1,5 +1,6 @@
-import { Server } from 'socket.io';
-import { registerMessageHandlers } from '../sockets/messageHandler.js';
+import { Server } from "socket.io";
+import { registerMessageHandlers } from "../sockets/messageHandler.js";
+import { registerThreadHandlers } from "../sockets/threadHandler.js";
 
 /**
  * @type {import('socket.io').Server}
@@ -15,12 +16,12 @@ let io;
 export function createSocketServer(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CLIENT_URL || 'http://localhost:5173',
+      origin: process.env.CLIENT_URL || "http://localhost:5173",
       credentials: true,
     },
   });
 
-  io.on('connection', (socket) => {
+  io.on("connection", (socket) => {
     const userId = socket.handshake.auth.userId;
 
     if (!userId) {
@@ -32,8 +33,9 @@ export function createSocketServer(httpServer) {
     console.log(`[socket] connected: ${socket.id} user: ${userId}`);
 
     registerMessageHandlers(io, socket);
+    registerThreadHandlers(io, socket);
 
-    socket.on('disconnect', () => {
+    socket.on("disconnect", () => {
       console.log(`[socket] disconnected: ${socket.id}`);
     });
   });
@@ -48,7 +50,9 @@ export function createSocketServer(httpServer) {
  */
 export function getIO() {
   if (!io) {
-    throw new Error('Socket.io not initialized — call createSocketServer first');
+    throw new Error(
+      "Socket.io not initialized — call createSocketServer first",
+    );
   }
   return io;
 }
