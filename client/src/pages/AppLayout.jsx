@@ -9,12 +9,12 @@ import DMPage from '@/pages/DMPage';
 import ProfilePage from '@/pages/ProfilePage';
 import SettingsPage from '@/pages/SettingsPage';
 import KanbanPage from '@/pages/KanbanPage';
+import ServerSettingsPage from '@/pages/ServerSettingsPage';
 
 function AppLayout() {
   return (
     <div className="h-screen flex overflow-hidden bg-background">
       <ServerSidebar />
-
       <div className="flex flex-col flex-1 overflow-hidden">
         <div className="flex flex-1 overflow-hidden">
           <Routes>
@@ -22,13 +22,14 @@ function AppLayout() {
             <Route
               path="/servers/:serverId/*"
               element={
-                <div className="flex flex-1 overflow-hidden" style={{ height: '100%' }}>
+                <div className="flex flex-1 overflow-hidden">
                   <ChannelSidebar />
-                  <div className="flex-1 overflow-hidden">
+                  <div className="flex flex-col flex-1 overflow-hidden">
                     <Routes>
                       <Route index element={<ServerPage />} />
                       <Route path="channels/:channelId" element={<ChannelPage />} />
                       <Route path="kanban" element={<KanbanPage />} />
+                      <Route path="settings" element={<ServerSettingsPage />} />
                     </Routes>
                   </div>
                 </div>
