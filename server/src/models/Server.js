@@ -37,4 +37,6 @@ const serverSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+serverSchema.index({ name: 'text', description: 'text' });
+
 export default mongoose.model('Server', serverSchema);

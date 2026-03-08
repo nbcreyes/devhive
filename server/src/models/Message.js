@@ -61,5 +61,6 @@ const messageSchema = new mongoose.Schema(
 
 messageSchema.index({ channel: 1, createdAt: -1 });
 messageSchema.index({ server: 1 });
+messageSchema.index({ content: 'text' });
 
 export default mongoose.model('Message', messageSchema);

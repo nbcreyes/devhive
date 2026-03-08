@@ -71,4 +71,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+userSchema.index({ username: 'text', displayName: 'text' });
+
 export default mongoose.model('User', userSchema);
