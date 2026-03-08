@@ -1,26 +1,19 @@
-import axios from 'axios';
+import axios from "axios";
 
-/**
- * Axios instance configured to talk to the Express backend.
- * Credentials are included so session cookies are sent with every request.
- */
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: "http://localhost:3001/api",
   withCredentials: true,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-// Redirect to login if the server returns 401
+// Don't hard redirect — let the auth store handle it
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      window.location.href = '/login';
-    }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

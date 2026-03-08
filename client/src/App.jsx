@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
-import { TooltipProvider } from '@/components/ui/tooltip';
-import useAuthStore from '@/stores/authStore';
-import useSocketStore from '@/stores/socketStore';
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import useAuthStore from "@/stores/authStore";
+import useSocketStore from "@/stores/socketStore";
 
 // Pages — will be created in Step 20
-import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
-import VerifyEmailPage from '@/pages/VerifyEmailPage';
-import AppLayout from '@/pages/AppLayout';
+import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
+import VerifyEmailPage from "@/pages/VerifyEmailPage";
+import AppLayout from "@/pages/AppLayout";
 
 /**
  * Route guard that redirects unauthenticated users to login.
@@ -78,16 +78,28 @@ function App() {
           <Route path="/" element={<Navigate to="/app" replace />} />
           <Route
             path="/login"
-            element={<AuthRoute><LoginPage /></AuthRoute>}
+            element={
+              <AuthRoute>
+                <LoginPage />
+              </AuthRoute>
+            }
           />
           <Route
             path="/register"
-            element={<AuthRoute><RegisterPage /></AuthRoute>}
+            element={
+              <AuthRoute>
+                <RegisterPage />
+              </AuthRoute>
+            }
           />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route
             path="/app/*"
-            element={<ProtectedRoute><AppLayout /></ProtectedRoute>}
+            element={
+              <ProtectedRoute>
+                <AppLayout />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </BrowserRouter>

@@ -1,41 +1,40 @@
 import { create } from 'zustand';
 import { io } from 'socket.io-client';
 
-/**
- * Global Socket.io store using Zustand.
- * Manages a single shared socket connection across the app.
- */
 const useSocketStore = create((set, get) => ({
   socket: null,
   isConnected: false,
 
-  /**
-   * Connects to the Socket.io server with the current user's ID.
-   * @param {string} userId
-   */
   connect: (userId) => {
     const existing = get().socket;
     if (existing) return;
 
-    const socket = io('/', {
+    const socket = io('http://localhost:3001', {
       auth: { userId },
-      transports: ['websocket'],
+      transports: ['websocket', 'polling'],
+      withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     socket.on('connect', () => {
+      console.log('[socket] connected:', socket.id);
       set({ isConnected: true });
     });
 
-    socket.on('disconnect', () => {
+    socket.on('connect_error', (err) => {
+      console.error('[socket] connection error:', err.message);
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('[socket] disconnected:', reason);
       set({ isConnected: false });
     });
 
     set({ socket });
   },
 
-  /**
-   * Disconnects the socket and clears the store.
-   */
   disconnect: () => {
     const { socket } = get();
     if (socket) {

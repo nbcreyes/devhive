@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import api from '@/lib/api';
+import { create } from "zustand";
+import api from "@/lib/api";
 
 /**
  * Global auth store using Zustand.
@@ -7,8 +7,8 @@ import api from '@/lib/api';
  */
 const useAuthStore = create((set) => ({
   user: null,
-  isLoading: true,
   isAuthenticated: false,
+  isLoading: true, // start as true
 
   /**
    * Fetches the current session from the server.
@@ -16,9 +16,14 @@ const useAuthStore = create((set) => ({
    */
   fetchMe: async () => {
     try {
-      const res = await api.get('/auth/me');
-      set({ user: res.data.user, isAuthenticated: true, isLoading: false });
-    } catch {
+      const res = await api.get("/auth/me");
+      const user = res.data.user;
+      set({
+        user: { ...user, id: user._id || user.id },
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (err) {
       set({ user: null, isAuthenticated: false, isLoading: false });
     }
   },
@@ -29,9 +34,10 @@ const useAuthStore = create((set) => ({
    * @param {string} password
    */
   login: async (email, password) => {
-    const res = await api.post('/auth/login', { email, password });
-    set({ user: res.data.user, isAuthenticated: true });
-    return res.data.user;
+    const res = await api.post("/auth/login", { email, password });
+    const user = res.data.user;
+    set({ user: { ...user, id: user._id || user.id }, isAuthenticated: true });
+    return user;
   },
 
   /**
@@ -41,7 +47,7 @@ const useAuthStore = create((set) => ({
    * @param {string} password
    */
   register: async (username, email, password) => {
-    const res = await api.post('/auth/register', { username, email, password });
+    const res = await api.post("/auth/register", { username, email, password });
     return res.data;
   },
 
@@ -49,7 +55,7 @@ const useAuthStore = create((set) => ({
    * Logs out the user and clears the session.
    */
   logout: async () => {
-    await api.post('/auth/logout');
+    await api.post("/auth/logout");
     set({ user: null, isAuthenticated: false });
   },
 

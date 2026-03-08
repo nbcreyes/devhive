@@ -1,21 +1,12 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@pages': path.resolve(__dirname, './src/pages'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@lib': path.resolve(__dirname, './src/lib'),
-      '@stores': path.resolve(__dirname, './src/stores'),
-      '@assets': path.resolve(__dirname, './src/assets'),
     },
   },
   server: {
@@ -23,11 +14,25 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
-        changeOrigin: true,
+        changeOrigin: false,
+        secure: false,
+        configure: (proxy) => {
+          proxy.on('proxyRes', (proxyRes) => {
+            const cookies = proxyRes.headers['set-cookie'];
+            if (cookies) {
+              proxyRes.headers['set-cookie'] = cookies.map((cookie) =>
+                cookie
+                  .replace(/; secure/gi, '')
+                  .replace(/; samesite=none/gi, '; SameSite=Lax')
+              );
+            }
+          });
+        },
       },
       '/socket.io': {
         target: 'http://localhost:3001',
-        changeOrigin: true,
+        changeOrigin: false,
+        secure: false,
         ws: true,
       },
     },
