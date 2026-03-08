@@ -3,6 +3,7 @@ import { registerMessageHandlers } from "../sockets/messageHandler.js";
 import { registerThreadHandlers } from "../sockets/threadHandler.js";
 import { registerDmHandlers } from "../sockets/dmHandler.js";
 import { registerEditorHandlers } from "../sockets/editorHandler.js";
+import { registerPresenceHandlers } from '../sockets/presenceHandler.js';
 
 /**
  * @type {import('socket.io').Server}
@@ -42,6 +43,7 @@ export function createSocketServer(httpServer) {
     registerThreadHandlers(io, socket);
     registerDmHandlers(io, socket);
     registerEditorHandlers(io, socket);
+    registerPresenceHandlers(io, socket);
 
     socket.on("disconnect", () => {
       console.log(`[socket] disconnected: ${socket.id}`);
