@@ -17,6 +17,7 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import searchRoutes from './routes/searchRoutes.js';
 import presenceRoutes from './routes/presenceRoutes.js';
+import executionRoutes from './routes/executionRoutes.js';
 
 // Register all Mongoose models on startup
 import './models/User.js';
@@ -65,6 +66,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/presence', presenceRoutes);
+app.use('/api/execute', executionRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });

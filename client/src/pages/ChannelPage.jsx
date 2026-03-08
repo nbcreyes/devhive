@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Hash, Volume2, Code, Sparkles, X } from 'lucide-react';
-import useServerStore from '@/stores/serverStore';
-import useSocketStore from '@/stores/socketStore';
-import MessageList from '@/components/MessageList';
-import MessageInput from '@/components/MessageInput';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import api from '@/lib/api';
-import { toast } from 'sonner';
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Hash, Volume2, Code, Sparkles, X } from "lucide-react";
+import useServerStore from "@/stores/serverStore";
+import useSocketStore from "@/stores/socketStore";
+import MessageList from "@/components/MessageList";
+import MessageInput from "@/components/MessageInput";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import api from "@/lib/api";
+import { toast } from "sonner";
+import CodeEditor from "@/components/CodeEditor";
 
 function ChannelPage() {
   const { channelId, serverId } = useParams();
@@ -39,9 +40,9 @@ function ChannelPage() {
   // Join the channel socket room
   useEffect(() => {
     if (!socket || !channelId) return;
-    socket.emit('channel:join', channelId);
+    socket.emit("channel:join", channelId);
     return () => {
-      socket.emit('channel:leave', channelId);
+      socket.emit("channel:leave", channelId);
     };
   }, [socket, channelId]);
 
@@ -54,22 +55,22 @@ function ChannelPage() {
         const res = await api.get(`/messages/${threadMessage._id}/threads`);
         setThreads(res.data.threads);
       } catch (err) {
-        console.error('[ChannelPage] failed to load threads:', err.message);
+        console.error("[ChannelPage] failed to load threads:", err.message);
       }
     }
 
     loadThreads();
 
     if (socket) {
-      socket.emit('thread:join', threadMessage._id);
+      socket.emit("thread:join", threadMessage._id);
 
-      socket.on('thread:new', ({ thread }) => {
+      socket.on("thread:new", ({ thread }) => {
         setThreads((prev) => [...prev, thread]);
       });
 
       return () => {
-        socket.emit('thread:leave', threadMessage._id);
-        socket.off('thread:new');
+        socket.emit("thread:leave", threadMessage._id);
+        socket.off("thread:new");
       };
     }
   }, [threadMessage, socket]);
@@ -80,7 +81,7 @@ function ChannelPage() {
       const res = await api.get(`/channels/${channelId}/summary`);
       setSummary(res.data.summary);
     } catch (err) {
-      toast.error('Failed to get summary');
+      toast.error("Failed to get summary");
     } finally {
       setIsSummaryLoading(false);
     }
@@ -88,7 +89,7 @@ function ChannelPage() {
 
   function sendThreadReply(content) {
     if (!socket || !threadMessage) return;
-    socket.emit('thread:send', {
+    socket.emit("thread:send", {
       messageId: threadMessage._id,
       content,
     });
@@ -103,12 +104,28 @@ function ChannelPage() {
   }
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      <div className="flex flex-col flex-1 overflow-hidden">
+    <div
+      style={{ display: "flex", flex: 1, overflow: "hidden", height: "100%" }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          flex: 1,
+          overflow: "hidden",
+          height: "100%",
+        }}
+      >
         <div className="h-12 border-b flex items-center px-4 gap-2 shrink-0">
-          {channel.type === 'voice' && <Volume2 className="w-4 h-4 text-muted-foreground" />}
-          {channel.type === 'code' && <Code className="w-4 h-4 text-muted-foreground" />}
-          {channel.type === 'text' && <Hash className="w-4 h-4 text-muted-foreground" />}
+          {channel.type === "voice" && (
+            <Volume2 className="w-4 h-4 text-muted-foreground" />
+          )}
+          {channel.type === "code" && (
+            <Code className="w-4 h-4 text-muted-foreground" />
+          )}
+          {channel.type === "text" && (
+            <Hash className="w-4 h-4 text-muted-foreground" />
+          )}
           <span className="font-medium text-sm">{channel.name}</span>
           {channel.topic && (
             <span className="text-xs text-muted-foreground border-l pl-2">
@@ -123,7 +140,7 @@ function ChannelPage() {
               disabled={isSummaryLoading}
             >
               <Sparkles className="w-4 h-4 mr-1" />
-              {isSummaryLoading ? 'Summarizing...' : 'AI Summary'}
+              {isSummaryLoading ? "Summarizing..." : "AI Summary"}
             </Button>
           </div>
         </div>
@@ -140,21 +157,37 @@ function ChannelPage() {
               <Sparkles className="w-3 h-3" />
               AI Summary
             </p>
-            <p className="text-muted-foreground whitespace-pre-wrap">{summary}</p>
+            <p className="text-muted-foreground whitespace-pre-wrap">
+              {summary}
+            </p>
           </div>
         )}
 
-        <MessageList
-          channelId={channelId}
-          socket={socket}
-          onThreadClick={setThreadMessage}
-        />
-
-        <MessageInput
-          channelId={channelId}
-          socket={socket}
-          placeholder={`Message #${channel.name}`}
-        />
+        {channel.type === "code" ? (
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <CodeEditor channelId={channelId} />
+          </div>
+        ) : (
+          <>
+            <MessageList
+              channelId={channelId}
+              socket={socket}
+              onThreadClick={setThreadMessage}
+            />
+            <MessageInput
+              channelId={channelId}
+              socket={socket}
+              placeholder={`Message #${channel.name}`}
+            />
+          </>
+        )}
       </div>
 
       {threadMessage && (
@@ -193,9 +226,9 @@ function ChannelPage() {
                 className="flex-1 text-sm bg-muted rounded px-3 py-1.5 outline-none"
                 placeholder="Reply in thread..."
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.target.value.trim()) {
+                  if (e.key === "Enter" && e.target.value.trim()) {
                     sendThreadReply(e.target.value.trim());
-                    e.target.value = '';
+                    e.target.value = "";
                   }
                 }}
               />

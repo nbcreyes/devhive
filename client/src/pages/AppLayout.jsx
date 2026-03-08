@@ -22,7 +22,7 @@ function AppLayout() {
             <Route
               path="/servers/:serverId/*"
               element={
-                <div className="flex flex-1 overflow-hidden">
+                <div className="flex flex-1 overflow-hidden" style={{ height: '100%' }}>
                   <ChannelSidebar />
                   <div className="flex-1 overflow-hidden">
                     <Routes>
